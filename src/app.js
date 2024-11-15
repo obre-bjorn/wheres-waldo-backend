@@ -5,9 +5,6 @@ const appRouter = require('./routes/appRoute')
 
 const app = express()
 
-
-
-
 app.use(appRouter)
 
 

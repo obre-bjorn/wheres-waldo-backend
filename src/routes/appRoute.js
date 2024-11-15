@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.post('/validate-click', async (req,res) => {
 
-    const {imageId, xPercentage, yPercentage, character} = req.body
+    const {imageId, xPercentage, yPercentage} = req.body
 
 
     const {characters} = await getImageById(imageId)
@@ -28,7 +28,7 @@ router.post('/validate-click', async (req,res) => {
                 })
             }else{ 
 
-                return res.status(201).json({success:false, msg: `Not Found`})
+                return res.status(203).json({success:false, msg: `Not Found`})
 
             }
 

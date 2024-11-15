@@ -35,3 +35,10 @@ model Image {
   url String
   characters Character[]
 }
+
+model Session{
+  id Int @id 
+  starttime DateTime
+  endtime DateTime?
+  selections Int?
+}
