@@ -1,13 +1,56 @@
 const express = require('express')
-const { getImageById, getScores, addScore} = require('../utils/prismaClient')
+const { getImageById, getScores, addScore, createSession, updateSession, deleteSession} = require('../utils/prismaClient')
 
 
 const router = express.Router()
 
 
+
+router.get('/session', async (req,res) => {
+
+    try {
+        
+        const sessionId = await createSession()
+
+
+        return res.status(200).json({msg: "Success",sessionID : sessionId})
+
+
+    } catch (error) {
+        console.log(" An Error occured creating session :", error)
+        return res.status(500).json({msg : "Internal server problem"})
+    }
+
+})
+
+
+
+router.post('/update-session', async (req,res) => {
+
+    const {sessionId,selections} = req.body
+
+
+    try {
+
+        const session = await updateSession(sessionId, selections)
+        
+        return res.status(200).status({
+            msg: "Success",
+            selections : session.selections
+        })
+
+
+
+    } catch (error) {
+        return res.status(500).json({})
+    }
+})
+
+
+
 router.post('/validate-click', async (req,res) => {
 
-    const {imageId, xPercentage, yPercentage} = req.body
+    const {imageId, xPercentage, yPercentage, sessionID} = req.body
 
 
     const {characters} = await getImageById(imageId)
