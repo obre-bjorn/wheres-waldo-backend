@@ -129,28 +129,57 @@ const createSession = async () => {
 
 }
 
-const updateSession = async (sessionId, selection) => {
+const updateSession = async (sessionId, selection,endtime) => {
 
     const session = await prisma.session.findUnique({ where: { id: sessionId }, }); 
     
+    let updatedSession
+
+
     if (!session) { 
         throw new Error('Session not found'); 
     } 
+
+
+    if(selection) {
+        updatedSession = await prisma.session.update({ 
+            where: { id: sessionId }, 
+            data: { 
+                selections:{
+                    push : selection
+                } }, 
+        }); 
+        
+    }else {
+
+        updatedSession = await prisma.session.update({ 
+            where: { id: sessionId }, 
+            data: { 
+                endtime:endtime
+                
+            }
+        
+    })
     
-    const updatedSession = await prisma.session.update({ 
-        where: { id: sessionId }, 
-        data: { 
-            selections:{
-                push : selection
-            } }, 
-    }); 
     
-    return updatedSession;
+        return updatedSession;
+
+    }
 
 }
 
+const getSessionById = async  (sessionID) => {
+
+    const session = prisma.session.findUnique({
+        where : {
+            id : sessionID
+        }
+    })
+
+    return session
 
 
+}
 
 
 const deleteSession = async (sessionId) => {
@@ -167,9 +196,10 @@ const deleteSession = async (sessionId) => {
 module.exports = {
     createImage,
     createSession,
+    addScore,
     updateSession,
     deleteSession,
-    addScore,
+    getSessionById,
     getScores,
     getImages,
     getImageById

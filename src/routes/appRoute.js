@@ -1,12 +1,12 @@
 const express = require('express')
-const { getImageById, getScores, addScore, createSession, updateSession, deleteSession} = require('../utils/prismaClient')
+const { getImageById, getScores,addScore, createSession, getSessionById,updateSession, deleteSession} = require('../utils/prismaClient')
 
-
+const {checkCharacterPos} = require('../utils/helpers')
 const router = express.Router()
 
 
 
-router.get('/session', async (req,res) => {
+router.get('/start-game', async (req,res) => {
 
     try {
         
@@ -25,29 +25,6 @@ router.get('/session', async (req,res) => {
 
 
 
-router.post('/update-session', async (req,res) => {
-
-    const {sessionId,selections} = req.body
-
-
-    try {
-
-        const session = await updateSession(sessionId, selections)
-        
-        return res.status(200).status({
-            msg: "Success",
-            selections : session.selections
-        })
-
-
-
-    } catch (error) {
-        return res.status(500).json({})
-    }
-})
-
-
-
 router.post('/validate-click', async (req,res) => {
 
     const {imageId, xPercentage, yPercentage, sessionID} = req.body
@@ -59,43 +36,54 @@ router.post('/validate-click', async (req,res) => {
 
     }
 
+
     const {characters} = await getImageById(imageId)
 
+    const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage)
 
 
-    const tolerance = 4
-    const characterFound  = false
+    if (isFound) {
+
+        const session = await updateSession(sessionID,characterName,null)
+
+        const gameover = session.selections >= 3
+
+
+        if(gameover){
+
+            const endtime = new Date()
+            session = await updateSession(sessionID, null, endtime)
+
+            return res.status.json({
+                msg: `${characterName} Found!`,
+                gameover,
+                
+            })
+    
+        }
+
+
+        return res.status(200).json({
+            msg: `${characterName} found!`,
+            gameover
+        })
+    }
+
+        
+
+
+        
     
 
-    characters.forEach(character => {
-            const { x, y } = character.pos;
-            
-            if (
-                xPercentage >= x - tolerance && xPercentage <= x + tolerance &&
-                yPercentage >= y - tolerance && yPercentage <= y + tolerance   && charName == character.name
-            ) {
-                console.log(`${character.name} found!`);
 
 
-
-                characterFound = true
-
-                
-                
-
-                return res.status(200).json({
-                    success: true,
-                    msg: `${character.name} found`
-                })
-            }else{ 
-
-                return res.status(203).json({success:false, msg: `Not Found`})
-
-            }
-
+    return res.status(203).json({
+        msg: "Character not Found",
     })
 
 })
+
+
 
 
 router.get('/highscore', async (req,res) => {
@@ -109,26 +97,43 @@ router.get('/highscore', async (req,res) => {
 })
 
 
-router.post('/highscore', async(req,res) => {
 
-    const { name, timetaken } = req.body
+router.post('/end-game', async (req,res) =>{ 
 
+    const {name, sessionID } = req.body 
 
-    const score = await addScore(name,timetaken)
-
-    return res.status(200).json({
-        success:true
-    })
+    if (!sessionID) {
+        return res.status(400).json({ msg: "Session ID, name, and timeTaken are required." });
+    }
     
+    try {
 
-})
+        const session = await getSessionById(sessionID)
+    
+        const timeTaken = Math.floor((new Date(session.endtime || new Date()) - new Date(session.starttime)) / 1000);
+        
+        await deleteSession(sessionID) 
+        
+        const score = await addScore(name, timeTaken)
 
 
-router.get('/end-game', async (req,res) =>{ 
+        const highscores = await getScores()
 
 
+        return res.status(200).json({
+            msg:"Game ended",
+            highscores : highscores.slice(10),
+        })
+        
+    } catch (error) {
 
+        console.log(error)
+        return res.status(500).json({
+            msg:"Internal Server problem",
+        })
+    }
 
+    
 })
 
 
