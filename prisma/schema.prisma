@@ -40,5 +40,5 @@ model Session{
   id Int @id 
   starttime DateTime
   endtime DateTime?
-  selections Int?
+  selections String[]
 }

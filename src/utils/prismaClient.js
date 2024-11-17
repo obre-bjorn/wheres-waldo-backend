@@ -32,7 +32,7 @@ const createImage = async (imageUrl,characters) => {
 
 }
 
-const addScore = async (name,timeTaken) => {
+const addScore = async (name = "Anonymous",timeTaken) => {
 
     try {
 
@@ -129,7 +129,7 @@ const createSession = async () => {
 
 }
 
-const updateSession = async (sessionId, correctSelections) => {
+const updateSession = async (sessionId, selection) => {
 
     const session = await prisma.session.findUnique({ where: { id: sessionId }, }); 
     
@@ -139,39 +139,25 @@ const updateSession = async (sessionId, correctSelections) => {
     
     const updatedSession = await prisma.session.update({ 
         where: { id: sessionId }, 
-        data: { correctSelections: correctSelections, }, 
+        data: { 
+            selections:{
+                push : selection
+            } }, 
     }); 
     
-    
-    if (updatedSession.correctSelections >= 3){ 
-        
-        const endTime = new Date(); 
-        
+    return updatedSession;
 
-        // Time in seconds 
-        const timeTaken = Math.floor((endTime - new Date(updatedSession.startTime)) / 1000); 
-        
-        
-        
-        await prisma.score.create({ 
-            data: { name: updatedSession.name || 'Anonymous', timetaken: timeTaken, }, 
-        
-        }); 
-        
-        
-        await deleteSession(sessionId); 
-    
-    
-    
-    } return updatedSession;
-
-
-    
 }
 
-const deleteSession = async () => {
 
-    await prisma.session.delete({ where: { id: sessionId }, });
+
+
+
+const deleteSession = async (sessionId) => {
+
+    const session = await prisma.session.delete({ where: { id: sessionId }, });
+    
+    return session
 
 }
 

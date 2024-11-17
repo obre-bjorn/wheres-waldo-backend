@@ -53,7 +53,19 @@ router.post('/validate-click', async (req,res) => {
     const {imageId, xPercentage, yPercentage, sessionID} = req.body
 
 
+    if(!sessionID){
+        
+        return res.status(403).json({msg:"Session not found"})
+
+    }
+
     const {characters} = await getImageById(imageId)
+
+
+
+    const tolerance = 4
+    const characterFound  = false
+    
 
     characters.forEach(character => {
             const { x, y } = character.pos;
@@ -63,6 +75,12 @@ router.post('/validate-click', async (req,res) => {
                 yPercentage >= y - tolerance && yPercentage <= y + tolerance   && charName == character.name
             ) {
                 console.log(`${character.name} found!`);
+
+
+
+                characterFound = true
+
+                
                 
 
                 return res.status(200).json({
@@ -102,6 +120,14 @@ router.post('/highscore', async(req,res) => {
         success:true
     })
     
+
+})
+
+
+router.get('/end-game', async (req,res) =>{ 
+
+
+
 
 })
 
