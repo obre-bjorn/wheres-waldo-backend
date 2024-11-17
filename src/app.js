@@ -5,6 +5,9 @@ const appRouter = require('./routes/appRoute')
 
 const app = express()
 
+app.use(express.urlencoded({extended: false}))
+
+
 app.use(appRouter)
 
 

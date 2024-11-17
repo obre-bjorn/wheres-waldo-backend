@@ -27,59 +27,62 @@ router.get('/start-game', async (req,res) => {
 
 router.post('/validate-click', async (req,res) => {
 
-    const {imageId, xPercentage, yPercentage, sessionID} = req.body
+        const {imageId, xPercentage, yPercentage, sessionID} = req.body
 
 
-    if(!sessionID){
-        
-        return res.status(403).json({msg:"Session not found"})
+        if(!sessionID){
+            
+            return res.status(403).json({msg:"Session not found"})
 
-    }
-
-
-    const {characters} = await getImageById(imageId)
-
-    const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage)
-
-
-    if (isFound) {
-
-        const session = await updateSession(sessionID,characterName,null)
-
-        const gameover = session.selections >= 3
-
-
-        if(gameover){
-
-            const endtime = new Date()
-            session = await updateSession(sessionID, null, endtime)
-
-            return res.status.json({
-                msg: `${characterName} Found!`,
-                gameover,
-                
-            })
-    
         }
 
+        try {
 
-        return res.status(200).json({
-            msg: `${characterName} found!`,
-            gameover
-        })
-    }
+            const {characters} = await getImageById(imageId)
+
+            const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage)
+
+
+            if (isFound) {
+
+                const session = await updateSession(sessionID,characterName,null)
+
+                const gameover = session.selections >= 3
+
+
+                if(gameover){
+
+                    const endtime = new Date()
+                    session = await updateSession(sessionID, null, endtime)
+
+                    return res.status.json({
+                        msg: `${characterName} Found!`,
+                        gameover,
+                        
+                    })
+            
+                }
+
+
+                return res.status(200).json({
+                    msg: `${characterName} found!`,
+                    gameover
+                })
+            }
+
+            return res.status(203).json({
+                msg: "Character not Found",
+            })
+            
+        } catch (error) {
+
+            console.log("Valid-Click: ", error)
+
+            return res.status(500).json({msg: "Internal server error"})
+            
+        }
 
         
-
-
-        
-    
-
-
-
-    return res.status(203).json({
-        msg: "Character not Found",
-    })
 
 })
 
