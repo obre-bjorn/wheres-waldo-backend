@@ -11,8 +11,7 @@ router.get('/start-game', async (req,res) => {
     try {
         
         const sessionId = await createSession()
-
-
+        
         return res.status(200).json({msg: "Success",sessionID : sessionId})
 
 
