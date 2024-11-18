@@ -159,12 +159,11 @@ const updateSession = async (sessionId, selection,endtime) => {
                 
             }
         
-    })
-    
-    
-        return updatedSession;
-
+        })
+        
     }
+
+    return updatedSession;
 
 }
 

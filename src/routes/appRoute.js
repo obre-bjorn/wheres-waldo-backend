@@ -45,9 +45,9 @@ router.post('/validate-click', async (req,res) => {
 
             if (isFound) {
 
-                const session = await updateSession(sessionID,characterName,null)
+                let session = await updateSession(sessionID,characterName,null)
 
-                const gameover = session.selections >= 3
+                const gameover = session.selections.length >= 3
 
 
                 if(gameover){
@@ -55,9 +55,9 @@ router.post('/validate-click', async (req,res) => {
                     const endtime = new Date()
                     session = await updateSession(sessionID, null, endtime)
 
-                    return res.status.json({
-                        msg: `${characterName} Found!`,
-                        gameover,
+                    return res.status(200).json({
+                        msg: `${characterName} found!`,
+                        gameover: true,
                         
                     })
             
