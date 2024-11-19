@@ -74,7 +74,11 @@ const getImages = async () => {
 
     try {
 
-        const images = await prisma.image.findMany()
+        const images = await prisma.image.findMany({
+            include: {
+                characters:true
+            }
+        })
 
         return images
 
@@ -92,7 +96,7 @@ const getImageById = async (imageId) => {
 
         const image = await prisma.image.findUnique({
             where : {
-                id : Id
+                id : imageId
             },
             include: {
                 characters: true
@@ -113,12 +117,8 @@ const getImageById = async (imageId) => {
 
 const createSession = async () => {
     
-    const id =  uuidv4()
-
-
-    const session = prisma.session.create({
+    const session = await prisma.session.create({
         data:{
-            id : id,
             starttime: new Date()
             
         }
@@ -131,36 +131,24 @@ const createSession = async () => {
 
 const updateSession = async (sessionId, selection,endtime) => {
 
-    const session = await prisma.session.findUnique({ where: { id: sessionId }, }); 
+    let updatedSession 
+
     
-    let updatedSession
-
-
-    if (!session) { 
-        throw new Error('Session not found'); 
-    } 
-
-
-    if(selection) {
-        updatedSession = await prisma.session.update({ 
-            where: { id: sessionId }, 
-            data: { 
-                selections:{
-                    push : selection
-                } }, 
-        }); 
-        
-    }else {
-
-        updatedSession = await prisma.session.update({ 
-            where: { id: sessionId }, 
-            data: { 
-                endtime:endtime
-                
-            }
-        
-        })
-        
+     if (selection) {
+      // Use `concat` to add items to an array in Prisma
+      updatedSession = await prisma.session.update({
+        where: { id: sessionId },
+        data: {
+          selections: {
+            set: [...session.selections, selection], // Append the new selection
+          },
+        },
+      });
+    } else if (endtime) {
+      updatedSession = await prisma.session.update({
+        where: { id: sessionId },
+        data: { endtime },
+      });
     }
 
     return updatedSession;

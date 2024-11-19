@@ -37,7 +37,7 @@ model Image {
 }
 
 model Session{
-  id Int @id 
+  id  String @id @default(uuid())
   starttime DateTime
   endtime DateTime?
   selections String[]

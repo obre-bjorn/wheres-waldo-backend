@@ -1,8 +1,21 @@
 const express = require('express')
-const { getImageById, getScores,addScore, createSession, getSessionById,updateSession, deleteSession} = require('../utils/prismaClient')
+const { getImages,getImageById, getScores,addScore, createSession, getSessionById,updateSession, deleteSession} = require('../utils/prismaClient')
 
 const {checkCharacterPos} = require('../utils/helpers')
 const router = express.Router()
+
+
+
+router.get('/game-images', async (req,res) => {
+
+    const images = await getImages()
+    
+    return res.status(200).json({
+        msg:"success",
+        images: images
+    })
+
+})
 
 
 
@@ -12,7 +25,7 @@ router.get('/start-game', async (req,res) => {
         
         const sessionId = await createSession()
         
-        return res.status(200).json({msg: "Success",sessionID : sessionId})
+        return res.status(200).json({msg: "Success", sessionID : sessionId})
 
 
     } catch (error) {
@@ -26,7 +39,10 @@ router.get('/start-game', async (req,res) => {
 
 router.post('/validate-click', async (req,res) => {
 
-        const {imageId, xPercentage, yPercentage, sessionID} = req.body
+
+        console.log(req.body)
+
+        const {imageId, xPercentage, yPercentage, sessionID,charName} = req.body
 
 
         if(!sessionID){
@@ -39,20 +55,23 @@ router.post('/validate-click', async (req,res) => {
 
             const {characters} = await getImageById(imageId)
 
-            const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage)
+            const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage,charName)
 
 
             if (isFound) {
 
-                let session = await updateSession(sessionID,characterName,null)
+                await updateSession(sessionID,characterName,null)
+
+                let session = getSessionById(sessionID)
 
                 const gameover = session.selections.length >= 3
 
+            
 
                 if(gameover){
 
                     const endtime = new Date()
-                    session = await updateSession(sessionID, null, endtime)
+                    await updateSession(sessionID, null, endtime)
 
                     return res.status(200).json({
                         msg: `${characterName} found!`,
@@ -64,12 +83,14 @@ router.post('/validate-click', async (req,res) => {
 
 
                 return res.status(200).json({
+                    success: true,
                     msg: `${characterName} found!`,
                     gameover
                 })
             }
 
             return res.status(203).json({
+                success: true,
                 msg: "Character not Found",
             })
             
