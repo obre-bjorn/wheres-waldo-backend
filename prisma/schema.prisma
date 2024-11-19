@@ -40,5 +40,5 @@ model Session{
   id  String @id @default(uuid())
   starttime DateTime
   endtime DateTime?
-  selections String[]
+  selections String[] @default([])
 }

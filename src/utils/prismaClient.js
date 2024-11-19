@@ -140,7 +140,7 @@ const updateSession = async (sessionId, selection,endtime) => {
         where: { id: sessionId },
         data: {
           selections: {
-            set: [...session.selections, selection], // Append the new selection
+            push:  selection, 
           },
         },
       });

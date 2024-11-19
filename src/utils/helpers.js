@@ -29,7 +29,7 @@ function checkCharacterPos (characters, xPercentage, yPercentage,charName) {
     }
 
 
-    return [characterName, true]
+    return [characterName, found]
 
 }
 

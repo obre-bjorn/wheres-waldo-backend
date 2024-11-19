@@ -39,9 +39,6 @@ router.get('/start-game', async (req,res) => {
 
 router.post('/validate-click', async (req,res) => {
 
-
-        console.log(req.body)
-
         const {imageId, xPercentage, yPercentage, sessionID,charName} = req.body
 
 
@@ -57,12 +54,13 @@ router.post('/validate-click', async (req,res) => {
 
             const  [characterName, isFound] = checkCharacterPos(characters,xPercentage,yPercentage,charName)
 
+            let session 
 
             if (isFound) {
 
-                await updateSession(sessionID,characterName,null)
+                session =  await updateSession(sessionID,characterName,null)
 
-                let session = getSessionById(sessionID)
+                console.log(session)
 
                 const gameover = session.selections.length >= 3
 
@@ -71,7 +69,7 @@ router.post('/validate-click', async (req,res) => {
                 if(gameover){
 
                     const endtime = new Date()
-                    await updateSession(sessionID, null, endtime)
+                    session = await updateSession(sessionID, null, endtime)
 
                     return res.status(200).json({
                         msg: `${characterName} found!`,
