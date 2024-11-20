@@ -72,8 +72,9 @@ router.post('/validate-click', async (req,res) => {
                     session = await updateSession(sessionID, null, endtime)
 
                     return res.status(200).json({
+                        success: true,
                         msg: `${characterName} found!`,
-                        gameover: true,
+                        gameover
                         
                     })
             
