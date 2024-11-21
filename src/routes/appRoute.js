@@ -108,9 +108,9 @@ router.post('/validate-click', async (req,res) => {
 
 
 
-router.get('/highscore', async (req,res) => {
+router.get('/highscores', async (req,res) => {
 
-    const scores = await getScores()
+    let scores = await getScores()
 
     scores = scores.slice(0,10)
 

@@ -33,6 +33,8 @@ const createImage = async (imageUrl,characters) => {
 }
 
 const addScore = async (name = "Anonymous",timeTaken) => {
+    
+    name = name == "" ? "Anonymous" : name
 
     try {
 
