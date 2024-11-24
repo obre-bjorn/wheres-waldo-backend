@@ -60,7 +60,6 @@ router.post('/validate-click', async (req,res) => {
 
                 session =  await updateSession(sessionID,characterName,null)
 
-                console.log(session)
 
                 const gameover = session.selections.length >= 3
 
@@ -69,6 +68,7 @@ router.post('/validate-click', async (req,res) => {
                 if(gameover){
 
                     const endtime = new Date()
+
                     session = await updateSession(sessionID, null, endtime)
 
                     return res.status(200).json({
@@ -95,8 +95,6 @@ router.post('/validate-click', async (req,res) => {
             
         } catch (error) {
 
-            console.log("Valid-Click: ", error)
-
             return res.status(500).json({msg: "Internal server error"})
             
         }
@@ -104,7 +102,6 @@ router.post('/validate-click', async (req,res) => {
         
 
 })
-
 
 
 
@@ -119,7 +116,6 @@ router.get('/highscores', async (req,res) => {
 })
 
 
-
 router.post('/end-game', async (req,res) =>{ 
 
     const {name, sessionID } = req.body 
@@ -132,7 +128,7 @@ router.post('/end-game', async (req,res) =>{
 
         const session = await getSessionById(sessionID)
     
-        const timeTaken = Math.floor((new Date(session.endtime || new Date()) - new Date(session.starttime)) / 1000);
+        const timeTaken = Math.floor((new Date(session.endtime) - new Date(session.starttime)) / 1000);
         
         await deleteSession(sessionID) 
         
@@ -149,7 +145,6 @@ router.post('/end-game', async (req,res) =>{
         
     } catch (error) {
 
-        console.log(error)
         return res.status(500).json({
             msg:"Internal Server problem",
         })

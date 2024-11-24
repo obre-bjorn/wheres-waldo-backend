@@ -47,6 +47,7 @@ const addScore = async (name = "Anonymous",timeTaken) => {
 
     } catch (error) {
         console.log("Failed to add score: ", error)
+        return errors
     }
 
 }
@@ -65,9 +66,8 @@ const getScores = async () => {
         return scores
 
     } catch (error) {
-        
-
         console.log("Cant get scores: ", error)
+        return error
 
     }
 }
@@ -110,9 +110,9 @@ const getImageById = async (imageId) => {
         return image
         
     } catch (error) {
-        console.log("Error: ", error)
+        
 
-        return        
+        return error   
     }
 
 }
@@ -149,7 +149,9 @@ const updateSession = async (sessionId, selection,endtime) => {
     } else if (endtime) {
       updatedSession = await prisma.session.update({
         where: { id: sessionId },
-        data: { endtime },
+        data: { 
+                endtime : endtime 
+            },
       });
     }
 
